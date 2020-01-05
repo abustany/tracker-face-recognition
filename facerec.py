@@ -422,6 +422,27 @@ def cmd_show_roi(uri):
     show_roi(make_tracker_conn(), uri)
 
 
+def index_all_pictures(conn, store):
+    """
+    Indexes all pictures in the index
+    """
+
+    pictures_dir = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES)
+
+    for uri in list_pictures(conn, pictures_dir):
+        if store.has(uri):
+            continue
+
+        path = path_from_uri(uri)
+        print('Indexing %s' % path)
+        index_picture(conn, store, path)
+
+
+@cli.command('index-all-pictures')
+def cmd_index_all_pictures():
+    index_all_pictures(make_tracker_conn(), make_embedding_store())
+
+
 @cli.command()
 def clear_all_regions():
     """
