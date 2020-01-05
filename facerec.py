@@ -148,9 +148,6 @@ def get_identified_rois(conn):
 
 
 def index_picture(conn, store, filename):
-    import cv2
-    import face_recognition
-
     file_uri = get_file_uri(conn, filename)
 
     if not file_uri:
@@ -159,6 +156,9 @@ def index_picture(conn, store, filename):
     if store.has(file_uri):
         print('File is already indexed: %s' % filename)
         return
+
+    import cv2
+    import face_recognition
 
     try:
         with open(filename, 'rb') as fd:
