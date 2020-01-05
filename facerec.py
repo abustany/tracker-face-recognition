@@ -160,8 +160,12 @@ def index_picture(conn, store, filename):
         print('File is already indexed: %s' % filename)
         return
 
-    with open(filename, 'rb') as fd:
-        img = face_recognition.load_image_file(fd)
+    try:
+        with open(filename, 'rb') as fd:
+            img = face_recognition.load_image_file(fd)
+    except IOError as e:
+        print('Error opening %s: %s' % (filename, e))
+        return
 
     img_width = img.shape[1]
     img_height = img.shape[0]
