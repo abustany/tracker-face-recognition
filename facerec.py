@@ -99,6 +99,10 @@ def list_pictures(conn, in_directory):
     return uris
 
 
+def path_from_uri(uri):
+    return urllib.parse.unquote(urllib.parse.urlparse(uri).path)
+
+
 @cli.command('list-pictures')
 def cmd_list_pictures():
     """
@@ -107,7 +111,7 @@ def cmd_list_pictures():
     pictures_dir = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES)
     conn = make_tracker_conn()
 
-    print('\n'.join(list_pictures(conn, pictures_dir)))
+    print('\n'.join([path_from_uri(f) for f in list_pictures(conn, pictures_dir)]))
 
 
 def get_file_uri(conn, filename):
@@ -393,9 +397,7 @@ def show_roi(conn, uri):
         raise Exception('ROI is not linked to any file')
 
     roi = get_roi(conn, uri)
-
-    file_path = urllib.parse.unquote(urllib.parse.urlparse(file_uri).path)
-    img = cv2.imread(file_path)
+    img = cv2.imread(path_from_uri(file_uri))
     width, height = img.shape[1], img.shape[0]
     top, right, bottom, left = int(roi.y*height), int((roi.x+roi.w)*width), int((roi.y+roi.h)*height), int(roi.x*width)
     cv2.imshow(roi.uri, img[top:bottom, left:right])
