@@ -82,7 +82,7 @@ def list_pictures(conn, in_directory):
     Returns a generator over the picture URIs in the given directory.
     """
 
-    cursor = conn.query('SELECT ?url {?f a nfo:Image; nie:url ?url . FILTER(strstarts(?url, "file://%s"))}' % urllib.parse.quote(in_directory))
+    cursor = conn.query('SELECT ?url {?f a nfo:Image; nie:url ?url . FILTER(strstarts(?url, "%s"))}' % uri_from_path(in_directory))
     uris = []
 
     try:
@@ -103,6 +103,10 @@ def path_from_uri(uri):
     return urllib.parse.unquote(urllib.parse.urlparse(uri).path)
 
 
+def uri_from_path(path):
+    return 'file://' + urllib.parse.quote(path, safe='/!$&\'()*+,;=:@')
+
+
 @cli.command('list-pictures')
 def cmd_list_pictures():
     """
@@ -115,7 +119,7 @@ def cmd_list_pictures():
 
 
 def get_file_uri(conn, filename):
-    cursor = conn.query('SELECT ?f {?f nie:url "file://%s"}' % urllib.parse.quote(filename))
+    cursor = conn.query('SELECT ?f {?f nie:url "%s"}' % uri_from_path(filename))
 
     uri = None
 
