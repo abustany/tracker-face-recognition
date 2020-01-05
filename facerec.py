@@ -165,6 +165,7 @@ def index_picture(conn, store, filename):
             img = face_recognition.load_image_file(fd)
     except IOError as e:
         print('Error opening %s: %s' % (filename, e))
+        store.save_indexed(file_uri)
         return
 
     img_width = img.shape[1]
@@ -176,6 +177,7 @@ def index_picture(conn, store, filename):
 
     if len(face_locations) == 0:
         print('No faces detected: %s' % filename)
+        store.save_indexed(file_uri)
         return
 
     region_uris = []
