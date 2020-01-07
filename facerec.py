@@ -107,12 +107,16 @@ def uri_from_path(path):
     return 'file://' + urllib.parse.quote(path, safe='/!$&\'()*+,;=:@')
 
 
+def default_pictures_dir():
+    return GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES)
+
+
 @cli.command('list-pictures')
 def cmd_list_pictures():
     """
     Lists the pictures in the index
     """
-    pictures_dir = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES)
+    pictures_dir = default_pictures_dir()
     conn = make_tracker_conn()
 
     print('\n'.join([path_from_uri(f) for f in list_pictures(conn, pictures_dir)]))
@@ -429,7 +433,7 @@ def index_all_pictures(conn, store):
     Indexes all pictures in the index
     """
 
-    pictures_dir = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES)
+    pictures_dir = default_pictures_dir()
 
     for uri in list_pictures(conn, pictures_dir):
         if store.has(uri):
