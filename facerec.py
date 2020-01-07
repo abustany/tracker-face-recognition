@@ -112,11 +112,12 @@ def default_pictures_dir():
 
 
 @cli.command('list-pictures')
-def cmd_list_pictures():
+@click.option('--pictures-dir', default=default_pictures_dir(), help='Directory where pictures are', show_default=True)
+def cmd_list_pictures(pictures_dir):
     """
     Lists the pictures in the index
     """
-    pictures_dir = default_pictures_dir()
+
     conn = make_tracker_conn()
 
     print('\n'.join([path_from_uri(f) for f in list_pictures(conn, pictures_dir)]))
@@ -428,12 +429,10 @@ def cmd_show_roi(uri):
     show_roi(make_tracker_conn(), uri)
 
 
-def index_all_pictures(conn, store):
+def index_all_pictures(conn, store, pictures_dir):
     """
     Indexes all pictures in the index
     """
-
-    pictures_dir = default_pictures_dir()
 
     for uri in list_pictures(conn, pictures_dir):
         if store.has(uri):
@@ -445,8 +444,9 @@ def index_all_pictures(conn, store):
 
 
 @cli.command('index-all-pictures')
-def cmd_index_all_pictures():
-    index_all_pictures(make_tracker_conn(), make_embedding_store())
+@click.option('--pictures-dir', default=default_pictures_dir(), help='Directory where pictures are', show_default=True)
+def cmd_index_all_pictures(pictures_dir):
+    index_all_pictures(make_tracker_conn(), make_embedding_store(), pictures_dir)
 
 
 @cli.command()
