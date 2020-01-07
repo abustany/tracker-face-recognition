@@ -282,6 +282,21 @@ def get_roi(conn, uri):
     return roi
 
 
+def get_contact_name(conn, uri):
+    name = None
+
+    cursor = conn.query('SELECT ?name {<%s> nco:fullname ?name}' % uri)
+    if cursor.next():
+        name = cursor.get_string(0)[0]
+
+    cursor.close()
+
+    if not name:
+        raise Exception('No contact with URI %s' % uri)
+
+    return name
+
+
 def get_contact_with_name(conn, name):
     escaped_name = Tracker.sparql_escape_string(name)
     contact = None
@@ -336,7 +351,7 @@ def autoidentify_picture(conn, store, filename):
             continue
 
         roi = get_roi(conn, known_roi_uris[best_match_index])
-        print('Best match index=%d distance=%f uri=%s contact=%s' % (best_match_index, face_distances[best_match_index], known_roi_uris[best_match_index], roi.contact))
+        print('Autodetected %s (distance: %f) ' % (get_contact_name(conn, roi.contact), face_distances[best_match_index]))
         matches[roi_uri] = roi.contact
 
     return matches
