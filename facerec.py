@@ -394,6 +394,38 @@ def cmd_identify_picture(filename):
     identify_picture(conn, filename, matches)
 
 
+def get_next_unidentified_picture_uri(conn):
+    cursor = conn.query('SELECT ?url {?file nie:url ?url; nfo:hasRegionOfInterest ?roi . FILTER(NOT EXISTS {?roi nfo:roiRefersTo ?something})} LIMIT 1')
+    uri = None
+
+    try:
+        while cursor.next():
+            uri = cursor.get_string(0)[0]
+            break
+    finally:
+        cursor.close()
+
+    return uri
+
+
+@cli.command('identify-next-picture')
+def cmd_identify_next_picture():
+    """
+    Opens the identification GUI for the next picture having an unidentified ROI
+    """
+
+    conn = make_tracker_conn()
+    uri = get_next_unidentified_picture_uri(conn)
+
+    if not uri:
+        print('All ROIs are identified. Good job!')
+        return
+
+    path = path_from_uri(uri)
+    print('Identifying picture %s' % path)
+    cmd_identify_picture([path])
+
+
 def list_rois(conn):
     cursor = conn.query('SELECT ?r ?name {?r nfo:roiRefersTo ?c . ?c a nco:PersonContact; nco:fullname ?name}')
 
