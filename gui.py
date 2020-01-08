@@ -25,10 +25,23 @@ class IdentifyWidget(Gtk.Layout):
 
         self.put(event_box, 0, 0)
 
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_data(bytes('''
+entry {
+    opacity: 0.5;
+}
+
+entry:focus {
+    opacity: 1;
+
+}
+        '''.encode()))
+
         self.__entries = []
 
         for roi in self.__rois:
             entry = Gtk.Entry()
+            entry.get_style_context().add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
             entry.connect('focus-out-event', lambda widget, event, roi=roi: self.__entry_focus_out(widget, roi))
 
