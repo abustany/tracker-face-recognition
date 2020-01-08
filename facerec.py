@@ -360,6 +360,13 @@ def autoidentify_picture(conn, store, filename):
     return matches
 
 
+def associate_roi_to_contact(conn, roi_uri, contact_uri):
+        conn.update('''
+            DELETE {<%(roi_uri)s> nfo:roiRefersTo ?x} WHERE {<%(roi_uri)s> nfo:roiRefersTo ?x}
+            INSERT {<%(roi_uri)s> nfo:roiRefersTo <%(contact_uri)s>}
+        ''' % {'roi_uri': roi_uri, 'contact_uri': contact_uri}, 0, None)
+
+
 def identify_picture(conn, filename, automatches={}):
     file_uri = get_file_uri(conn, filename)
 
@@ -377,11 +384,16 @@ def identify_picture(conn, filename, automatches={}):
     gui.identify_window(filename, get_contacts(conn), rois, name_change_cb)
 
     for uri, name in changed_rois.items():
-        contact = get_contact_with_name(conn, name)
-        conn.update('''
-            DELETE {<%(roi_uri)s> nfo:roiRefersTo ?x} WHERE {<%(roi_uri)s> nfo:roiRefersTo ?x}
-            INSERT {<%(roi_uri)s> nfo:roiRefersTo <%(contact_uri)s>}
-        ''' % {'roi_uri': uri, 'contact_uri': contact}, 0, None)
+        print('Associating ROI %s to %s' % (uri, name))
+        contact_uri = get_contact_with_name(conn, name)
+        associate_roi_to_contact(conn, uri, contact_uri)
+
+    for uri, contact_uri in automatches.items():
+        if uri in changed_rois:
+            continue
+
+        print('Associating ROI %s to %s' % (uri, get_contact_name(conn, contact_uri)))
+        associate_roi_to_contact(conn, uri, contact_uri)
 
 
 @cli.command('identify-picture')
