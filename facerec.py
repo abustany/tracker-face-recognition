@@ -343,6 +343,9 @@ def autoidentify_picture(conn, store, filename):
         return matches
 
     for roi_uri, embedding in zip(file_roi_uris, file_embeddings):
+        if roi_uri in known_roi_uris:
+            continue
+
         face_distances = face_recognition.face_distance(known_embeddings, embedding)
         best_match_index = np.argmin(face_distances)
         distance = face_distances[best_match_index]
