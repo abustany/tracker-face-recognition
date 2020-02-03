@@ -492,10 +492,6 @@ def cmd_show_roi(uri):
 
 
 def index_all_pictures(conn, store, pictures_dir):
-    """
-    Indexes all pictures in the index
-    """
-
     for uri in list_pictures(conn, pictures_dir):
         if store.has(uri):
             continue
@@ -508,6 +504,10 @@ def index_all_pictures(conn, store, pictures_dir):
 @cli.command('index-all-pictures')
 @click.option('--pictures-dir', default=default_pictures_dir(), help='Directory where pictures are', show_default=True)
 def cmd_index_all_pictures(pictures_dir):
+    """
+    Indexes all pictures under the given directory (or in the default XDG pictures directory).
+    """
+
     index_all_pictures(make_tracker_conn(), make_embedding_store(), pictures_dir)
 
 
